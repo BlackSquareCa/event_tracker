@@ -112,6 +112,8 @@ module EventTracker
       registered_properties = session.delete(:registered_properties)
       event_tracker_queue = session.delete(:event_tracker_queue)
 
+      a << google_analytics_tracker.track_pageview if google_analytics_tracker
+
       event_trackers.each do |tracker|
         a << tracker.register(registered_properties) if registered_properties.present? && tracker.respond_to?(:register)
 

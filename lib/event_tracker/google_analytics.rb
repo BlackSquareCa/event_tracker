@@ -9,13 +9,16 @@ class EventTracker::GoogleAnalytics
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
       ga('create', '#{@key}', 'auto', {'name': 'event_tracker'});
-      ga('event_tracker.send', 'pageview');
+      ga('event_tracker.require', 'displayfeatures');
     EOD
   end
 
   def track(event_name, properties = {})
     %Q{ga('event_tracker.send', 'event', 'event_tracker', '#{event_name}');}
+  end
+
+  def track_pageview
+    %Q{ga('event_tracker.send', 'pageview', window.location.pathname);}
   end
 end
