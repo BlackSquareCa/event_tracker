@@ -47,4 +47,8 @@ class EventTracker::Mixpanel
   def alias(identity)
     %Q{mixpanel.alias(#{identity.to_json});}
   end
+
+  def track_page_views_as_events?
+    true
+  end
 end

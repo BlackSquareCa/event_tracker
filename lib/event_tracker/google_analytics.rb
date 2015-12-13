@@ -21,4 +21,8 @@ class EventTracker::GoogleAnalytics
   def track_pageview
     %Q{ga('event_tracker.send', 'pageview', window.location.pathname);}
   end
+
+  def track_page_views_as_events?
+    true
+  end
 end

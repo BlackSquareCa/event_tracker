@@ -1,5 +1,6 @@
 require "event_tracker/version"
 require "event_tracker/mixpanel"
+require "event_tracker/intercom"
 require "event_tracker/kissmetrics"
 require "event_tracker/google_analytics"
 
@@ -7,6 +8,10 @@ module EventTracker
   module HelperMethods
     def track_event(event_name, args = {})
       (session[:event_tracker_queue] ||= []) << [event_name, args]
+    end
+
+    def track_page_view_event(args = {})
+      (session[:event_tracker_page_view_queue] ||= []) << ['Viewed Page', args]
     end
 
     def register_properties(args)
@@ -42,6 +47,13 @@ module EventTracker
       end
     end
 
+    def intercom_tracker
+      @intercom_tracker ||= begin
+        intercom_key = Rails.application.config.event_tracker.intercom_key
+        EventTracker::Intercom.new(intercom_key) if intercom_key
+      end
+    end
+    
     def kissmetrics_tracker
       @kissmetrics_tracker ||= begin
         kissmetrics_key = Rails.application.config.event_tracker.kissmetrics_key
@@ -60,6 +72,7 @@ module EventTracker
       @event_trackers ||= begin
         trackers = []
         trackers << mixpanel_tracker if mixpanel_tracker
+        trackers << intercom_tracker if intercom_tracker
         trackers << kissmetrics_tracker if kissmetrics_tracker
         trackers << google_analytics_tracker if google_analytics_tracker
         trackers
@@ -105,12 +118,17 @@ module EventTracker
         a << mixpanel_tracker.people_increment(people)
       end
 
+      if settings = respond_to?(:intercom_settings, true) && intercom_settings
+        a << intercom_tracker.boot(settings)
+      end
+
       if identity = respond_to?(:kissmetrics_identity, true) && kissmetrics_identity
         a << kissmetrics_tracker.identify(identity)
       end
 
       registered_properties = session.delete(:registered_properties)
       event_tracker_queue = session.delete(:event_tracker_queue)
+      event_tracker_page_view_queue = session.delete(:event_tracker_page_view_queue)
 
       a << google_analytics_tracker.track_pageview if google_analytics_tracker
 
@@ -120,6 +138,12 @@ module EventTracker
         if event_tracker_queue.present?
           event_tracker_queue.each do |event_name, properties|
             a << tracker.track(event_name, properties)
+          end
+        end
+
+        if event_tracker_page_view_queue.present?
+          event_tracker_page_view_queue.each do |event_name, properties|
+            a << tracker.track(event_name, properties) if tracker.track_page_views_as_events?
           end
         end
       end

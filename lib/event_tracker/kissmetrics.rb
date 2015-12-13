@@ -32,4 +32,8 @@ class EventTracker::Kissmetrics
   def identify(identity)
     %Q{_kmq.push(['identify', '#{identity}']);}
   end
+
+  def track_page_views_as_events?
+    true
+  end
 end
