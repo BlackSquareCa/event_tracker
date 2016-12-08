@@ -10,8 +10,13 @@ class EventTracker::GoogleAnalytics
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
       ga('create', '#{@key}', 'auto', {'name': 'event_tracker'});
+      ga('require', 'linkid');
       ga('event_tracker.require', 'displayfeatures');
     EOD
+  end
+
+  def identify(distinct_id)
+    %Q{ga('set', 'userId', "#{distinct_id}");}
   end
 
   def track(event_name, properties = {})
