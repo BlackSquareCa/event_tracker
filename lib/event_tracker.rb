@@ -122,6 +122,10 @@ module EventTracker
         a << intercom_tracker.boot(settings)
       end
 
+      if identity = respond_to?(:google_analytics_identity, true) && google_analytics_identity
+        a << google_analytics_tracker.identify(identity)
+      end
+
       if identity = respond_to?(:kissmetrics_identity, true) && kissmetrics_identity
         a << kissmetrics_tracker.identify(identity)
       end
