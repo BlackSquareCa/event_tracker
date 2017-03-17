@@ -153,6 +153,7 @@ module EventTracker
       event_tracker_page_view_queue = session.delete(:event_tracker_page_view_queue)
 
       a << google_analytics_tracker.track_pageview if google_analytics_tracker
+      a << facebook_tracker.track_pageview if facebook_tracker
 
       event_trackers.each do |tracker|
         a << tracker.register(registered_properties) if registered_properties.present? && tracker.respond_to?(:register)

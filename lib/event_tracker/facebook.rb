@@ -11,13 +11,16 @@ class EventTracker::Facebook
       t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
       document,'script','https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', '#{@key}');
-      fbq('track', 'PageView');
     EOD
   end
 
   def track(event_name, properties = {})
     p = properties.empty? ? "" : ", #{properties.to_json}"
     %Q{fbq('trackCustom', '#{event_name}'#{p});}
+  end
+
+  def track_pageview
+    %Q{fbq('track', 'PageView');}
   end
 
   def track_page_views_as_events?
