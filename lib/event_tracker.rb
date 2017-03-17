@@ -3,6 +3,8 @@ require "event_tracker/mixpanel"
 require "event_tracker/intercom"
 require "event_tracker/kissmetrics"
 require "event_tracker/google_analytics"
+require "event_tracker/facebook"
+require "event_tracker/linked_in"
 
 module EventTracker
   module HelperMethods
@@ -61,6 +63,20 @@ module EventTracker
       end
     end
 
+    def facebook_tracker
+      @facebook_tracker ||= begin
+        facebook_key = Rails.application.config.event_tracker.facebook_key
+        EventTracker::Facebook.new(facebook_key) if facebook_key
+      end
+    end
+
+    def linked_in_tracker
+      @linked_in_tracker ||= begin
+        linked_in_key = Rails.application.config.event_tracker.linked_in_key
+        EventTracker::LinkedIn.new(linked_in_key) if linked_in_key
+      end
+    end
+
     def google_analytics_tracker
       @google_analytics_tracker ||= begin
         google_analytics_key = Rails.application.config.event_tracker.google_analytics_key
@@ -75,6 +91,8 @@ module EventTracker
         trackers << intercom_tracker if intercom_tracker
         trackers << kissmetrics_tracker if kissmetrics_tracker
         trackers << google_analytics_tracker if google_analytics_tracker
+        trackers << facebook_tracker if facebook_tracker
+        trackers << linked_in_tracker if linked_in_tracker
         trackers
       end
     end
@@ -141,13 +159,13 @@ module EventTracker
 
         if event_tracker_queue.present?
           event_tracker_queue.each do |event_name, properties|
-            a << tracker.track(event_name, properties)
+            a << tracker.track(event_name, properties) if tracker.respond_to?(:track)
           end
         end
 
         if event_tracker_page_view_queue.present?
           event_tracker_page_view_queue.each do |event_name, properties|
-            a << tracker.track(event_name, properties) if tracker.track_page_views_as_events?
+            a << tracker.track(event_name, properties) if tracker.respond_to?(:track_page_views_as_events?) && tracker.track_page_views_as_events?
           end
         end
       end
