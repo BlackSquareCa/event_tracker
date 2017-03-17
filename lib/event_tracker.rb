@@ -110,42 +110,42 @@ module EventTracker
       return unless body_insert_at
 
       a = []
-      if mixpanel_alias = session.delete(:mixpanel_alias)
-        a << mixpanel_tracker.alias(mixpanel_alias)
-      elsif distinct_id = respond_to?(:mixpanel_distinct_id, true) && mixpanel_distinct_id
-        a << mixpanel_tracker.identify(distinct_id)
+      if (mixpanel_alias = session.delete(:mixpanel_alias))
+        a << mixpanel_tracker.alias(mixpanel_alias) if mixpanel_tracker
+      elsif (distinct_id = respond_to?(:mixpanel_distinct_id, true) && mixpanel_distinct_id)
+        a << mixpanel_tracker.identify(distinct_id) if mixpanel_tracker
       end
 
-      if name_tag = respond_to?(:mixpanel_name_tag, true) && mixpanel_name_tag
-        a << mixpanel_tracker.name_tag(name_tag)
+      if (name_tag = respond_to?(:mixpanel_name_tag, true) && mixpanel_name_tag)
+        a << mixpanel_tracker.name_tag(name_tag) if mixpanel_tracker
       end
 
       if (config = session.delete(:mixpanel_set_config)).present?
-        a << mixpanel_tracker.set_config(config)
+        a << mixpanel_tracker.set_config(config) if mixpanel_tracker
       end
 
       if (people = session.delete(:mixpanel_people_set)).present?
-        a << mixpanel_tracker.people_set(people)
+        a << mixpanel_tracker.people_set(people) if mixpanel_tracker
       end
 
       if (people = session.delete(:mixpanel_people_set_once)).present?
-        a << mixpanel_tracker.people_set_once(people)
+        a << mixpanel_tracker.people_set_once(people) if mixpanel_tracker
       end
 
       if (people = session.delete(:mixpanel_people_increment)).present?
-        a << mixpanel_tracker.people_increment(people)
+        a << mixpanel_tracker.people_increment(people) if mixpanel_tracker
       end
 
-      if settings = respond_to?(:intercom_settings, true) && intercom_settings
-        a << intercom_tracker.boot(settings)
+      if (settings = respond_to?(:intercom_settings, true) && intercom_settings)
+        a << intercom_tracker.boot(settings) if intercom_tracker
       end
 
-      if identity = respond_to?(:google_analytics_identity, true) && google_analytics_identity
-        a << google_analytics_tracker.identify(identity)
+      if (identity = respond_to?(:google_analytics_identity, true) && google_analytics_identity)
+        a << google_analytics_tracker.identify(identity) if google_analytics_tracker
       end
 
-      if identity = respond_to?(:kissmetrics_identity, true) && kissmetrics_identity
-        a << kissmetrics_tracker.identify(identity)
+      if (identity = respond_to?(:kissmetrics_identity, true) && kissmetrics_identity)
+        a << kissmetrics_tracker.identify(identity) if kissmetrics_tracker
       end
 
       registered_properties = session.delete(:registered_properties)
