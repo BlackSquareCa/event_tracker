@@ -55,7 +55,7 @@ module EventTracker
         EventTracker::Intercom.new(intercom_key) if intercom_key
       end
     end
-    
+
     def kissmetrics_tracker
       @kissmetrics_tracker ||= begin
         kissmetrics_key = Rails.application.config.event_tracker.kissmetrics_key
@@ -183,7 +183,7 @@ module EventTracker
       ActiveSupport.on_load :action_controller do
         include ActionControllerExtension
         include HelperMethods
-        helper HelperMethods
+        ::ActionController::Base.helper HelperMethods
       end
     end
   end
